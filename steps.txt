@@ -1,0 +1,65 @@
+NEUROFLOW AI — API KEYS AND DEPLOYMENT
+======================================
+
+No paid AI API key is required. NeuroFlow works with deterministic retrieval when Ollama is unavailable.
+
+1) MONGODB ATLAS (optional locally, recommended for deployment)
+---------------------------------------------------------------
+1. Visit https://www.mongodb.com/atlas and create a free account/project.
+2. Build a free M0 cluster.
+3. Database Access > Add New Database User. Create a username/password and save them.
+4. Network Access > Add IP Address. For Render, choose Allow Access From Anywhere (0.0.0.0/0).
+5. Connect > Drivers > Node.js. Copy the connection URI and replace <password>.
+   Example: mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/neuroflow?retryWrites=true&w=majority
+6. Use that value as MONGODB_URI in Render. Do not commit it to Git.
+
+2) OPTIONAL LOCAL OLLAMA
+------------------------
+1. Install Ollama from https://ollama.com/download.
+2. In a terminal run: ollama pull llama3.1:8b
+3. Then run: ollama pull nomic-embed-text
+4. Keep Ollama running on port 11434. Defaults already match this application.
+5. Do NOT set an Ollama URL in Render unless you operate your own reachable Ollama server.
+   The deployed app automatically uses its offline fallback instead.
+
+3) RENDER — BACKEND
+-------------------
+1. Push this project to a GitHub repository.
+2. Visit https://render.com and sign in with GitHub.
+3. New > Blueprint, select the repository. Render detects render.yaml.
+   Alternatively create a Web Service with root directory server, build command npm install,
+   start command npm start, and Node 20.
+4. Add environment variables:
+   MONGODB_URI = Atlas URI from section 1
+   JWT_SECRET = long random value (at least 32 characters)
+   JWT_EXPIRES_IN = 7d
+   CLIENT_URL = your final Vercel URL, e.g. https://neuroflow-ai.vercel.app
+   SEED_SAMPLE_DATA = false (set true only if you want the demo account)
+5. Deploy and copy the URL, e.g. https://neuroflow-api.onrender.com.
+6. Open https://YOUR-RENDER-URL/api/health and confirm status is ok and repository is mongo.
+
+Important storage note: Render's local disk is ephemeral. Uploaded source files can disappear after
+redeployments, while document metadata/chunks persist in Atlas. For long-term production file retention,
+add an object-storage provider (Cloudinary/S3) in a future change.
+
+4) VERCEL — FRONTEND
+--------------------
+1. Visit https://vercel.com and import the same GitHub repository.
+2. In project settings set Root Directory to client.
+3. Framework preset: Vite. Build command: npm run build. Output directory: dist.
+4. Add Environment Variable:
+   VITE_API_BASE_URL = https://YOUR-RENDER-URL/api
+5. Deploy. Copy the Vercel URL.
+6. Return to Render and update CLIENT_URL to this exact Vercel URL, then redeploy Render.
+7. Register an account, create a workspace, upload a TXT/PDF/DOCX/CSV/image, and run every workflow.
+
+5) PRE-DEPLOY CHECKLIST
+------------------------
+[ ] npm --prefix server install
+[ ] npm --prefix client install
+[ ] npm --prefix client run build
+[ ] Render /api/health returns status ok
+[ ] VITE_API_BASE_URL ends with /api
+[ ] Render CLIENT_URL exactly matches Vercel origin (no trailing slash)
+[ ] JWT_SECRET is private and not the example value
+[ ] Atlas MONGODB_URI is set and Atlas network access permits Render
