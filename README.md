@@ -1,38 +1,98 @@
 # NeuroFlow AI
 
-> An intelligent workspace for turning documents into organised, actionable knowledge.
+> A secure document-intelligence workspace that turns scattered source files into focused, usable knowledge.
 
-[Explore the live application](https://neuroflow-ai-bay.vercel.app/) · [Check API status](https://neuroflow-gl8v.onrender.com/api/health)
+[Live application](https://neuroflow-ai-bay.vercel.app/) · [API health](https://neuroflow-gl8v.onrender.com/api/health)
 
-NeuroFlow helps individuals and teams collect documents, organise them into workspaces, and surface useful insights through focused AI-assisted workflows. It provides a streamlined environment for researching, reviewing, and working with information without losing context.
+## Overview
 
-## Highlights
+NeuroFlow is a full-stack application for individuals and teams who work with document-heavy projects. Users create private workspaces, upload reference material, and use targeted workflows to ask grounded questions, generate summaries, prepare research briefs, identify meeting action items, and compare documents.
 
-- Secure account registration and authentication
-- Personal workspaces for organising projects and documents
-- Support for TXT, PDF, DOCX, CSV, and image uploads
-- Document text extraction, summaries, and metadata
-- AI-assisted workflows grounded in your uploaded content
-- Searchable knowledge base with MongoDB persistence
-- Responsive React interface designed for focused work
+The product keeps source context close to every result. Files are extracted and processed in the background; each workflow retrieves relevant document content and returns readable output with citations and an execution trace.
 
-## Live application
+## Live demo
 
-Visit **[neuroflow-ai-bay.vercel.app](https://neuroflow-ai-bay.vercel.app/)** to use NeuroFlow.
+Try the deployed application at **[neuroflow-ai-bay.vercel.app](https://neuroflow-ai-bay.vercel.app/)**. The React frontend is deployed on Vercel and communicates with an Express API deployed on Render.
 
-The API is hosted separately and its health endpoint is available at [neuroflow-gl8v.onrender.com/api/health](https://neuroflow-gl8v.onrender.com/api/health).
+## Key capabilities
 
-## Technology
+- Secure registration and JWT-protected sign-in
+- Clear, in-progress feedback during sign-in and account creation
+- Private workspaces for organising projects and source files
+- PDF, DOCX, TXT, Markdown, CSV, PNG, JPG, JPEG, and WEBP uploads
+- Background text extraction, chunking, and document metadata processing
+- Grounded question answering with document citations
+- Summary, research-brief, meeting-action-item, and document-comparison workflows
+- Workflow history, confidence evaluation, and execution trace
+- Responsive React interface built for focused work
 
-| Area | Tools |
+## Benefits
+
+| Benefit | How NeuroFlow delivers it |
 | --- | --- |
-| Frontend | React, Vite, React Router, Zustand, TanStack Query |
-| Backend | Node.js, Express, JWT |
+| Faster knowledge discovery | Retrieves relevant text from uploaded files, reducing manual document review. |
+| Better project organisation | Groups documents, workflow outputs, and activity within dedicated workspaces. |
+| More trustworthy outputs | Shows supporting citations and a workflow trace beside results. |
+| Less repetitive analysis | Offers ready-made workflows for research, summaries, comparisons, and meeting follow-ups. |
+| Privacy-aware access | Uses authenticated, user-scoped API routes to isolate workspace data. |
+
+## Technology stack
+
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React 18, Vite, React Router, TanStack Query, Zustand, Axios, Lucide React |
+| Backend | Node.js, Express, JWT, bcryptjs, CORS |
 | Database | MongoDB with Mongoose |
-| Document processing | Multer, Mammoth, pdf-parse, Sharp, Tesseract.js |
+| Document processing | Multer, Mammoth, pdf-parse, csv-parse, Sharp, Tesseract.js |
+| Workflows | Document chunk retrieval, embeddings/similarity scoring, structured grounded outputs |
 | Deployment | Vercel (frontend) and Render (API) |
 
+## Basic architecture
+
+```text
+React client (Vercel)
+  ├─ Authentication and workspace UI
+  ├─ TanStack Query server state
+  └─ Zustand persisted session state
+            │ HTTPS / JWT
+            ▼
+Express API (Render)
+  ├─ Authentication and user-scoped routes
+  ├─ Upload and document-ingestion pipeline
+  └─ Grounded workflow and retrieval services
+            │
+            ▼
+MongoDB
+  └─ Users, workspaces, documents, chunks, chats, and workflow runs
+```
+
+## Project structure
+
+```text
+client/
+  src/
+    main.jsx          # Routes, pages, API client, and UI state
+    index.css          # Application styling
+server/
+  src/
+    app.js             # Express routes and middleware
+    config/            # Repository and persistence configuration
+    middleware/        # JWT authentication
+    models/            # MongoDB models
+    services/          # Ingestion, retrieval, AI, and workflow logic
+    utils/             # Shared server helpers
+render.yaml            # Render deployment configuration
+vercel.json            # Vercel client routing configuration
+```
+
 ## Run locally
+
+### Prerequisites
+
+- Node.js 18 or later
+- A MongoDB connection string
+
+Install dependencies:
 
 ```bash
 npm install
@@ -40,7 +100,15 @@ npm --prefix server install
 npm --prefix client install
 ```
 
-Create `server/.env` from `server/.env.example`, provide a secure `JWT_SECRET`, then start both applications:
+Create `server/.env` with the required values:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=use_a_long_random_secret
+CLIENT_URL=http://localhost:5173
+```
+
+Start the client and API:
 
 ```bash
 npm run dev
@@ -48,15 +116,9 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
-## Project structure
+## Authentication experience
 
-```text
-client/      # React and Vite frontend
-server/      # Express API and document-processing services
-render.yaml  # Render deployment configuration
-vercel.json  # Vercel routing configuration
-```
+The sign-in and account-creation pages disable controls while a request is processing, show a spinner, and announce clear status text such as **“Signing in…”** and **“Authenticating your secure session. Please wait…”**. This prevents duplicate submissions and makes the transition into a workspace clear.
 
 ## License
 
-This project is intended for educational and portfolio use.
