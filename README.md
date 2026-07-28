@@ -120,5 +120,4 @@ Open [http://localhost:5173](http://localhost:5173).
 
 The sign-in and account-creation pages disable controls while a request is processing, show a spinner, and announce clear status text such as **“Signing in…”** and **“Authenticating your secure session. Please wait…”**. This prevents duplicate submissions and makes the transition into a workspace clear.
 
-## License
 
